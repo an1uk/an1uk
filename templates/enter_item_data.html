@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+  <h1>Enter Item Data</h1>
+  <ul class="list-group">
+    {% for e in entries %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <a href="{{ url_for('items.list_items_by_category', category_id=e.category_id) }}">
+          {{ e.path }}
+        </a>
+        <span class="badge badge-primary badge-pill">{{ e.count }}</span>
+      </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

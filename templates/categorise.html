@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}Select eBay category for items{% endblock %}
+
+{% block content %}
+<head>
+  <style>
+    .actions-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.7em; }
+    .select-actions { display: flex; gap: 6px; font-size: 0.97em; }
+    .button-actions { display: flex; gap: 8px; }
+    .selection-box, .category-box {
+      border: 1.5px solid #bbb;
+      border-radius: 8px;
+      padding: 4px 16px 7px 16px;
+      margin-bottom: 1em;
+      background: #fafbfc;
+      min-width: 260px;
+      box-shadow: 0 2px 8px #0001;
+      position: relative;
+      display: inline-block;
+      vertical-align: top;
+    }
+    .selection-box legend, .category-box legend {
+      font-size: 1.08em;
+      font-weight: 600;
+      color: #2269a9;
+      padding: 0 8px;
+      letter-spacing: 0.5px;
+      text-align: center;
+      width: 100%;
+      display: block;
+      margin: 0 auto 2px auto;
+    }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-top: 2em; }
+    .item { border: 1px solid #ccc; padding: 10px; background: #f9f9f9; text-align: center; border-radius: 8px; box-shadow: 0 2px 4px #0001; cursor: pointer; position: relative; transition: box-shadow 0.16s, border-color 0.16s; }
+    .item:hover { border-color: #2196f3; box-shadow: 0 0 8px #2196f377; }
+    .item.selected { border: 2px solid #2196f3; box-shadow: 0 0 6px #2196f377; background: #e3f2fd; }
+    .sku-label { font-weight: bold; margin-bottom: 0.5em; letter-spacing: 1px; }
+    .zoom-img { max-width: 120px; max-height: 120px; cursor: zoom-in; border-radius: 4px; transition: box-shadow 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.11); margin-bottom: 0.5em; }
+    .zoom-img.zoomed { max-width: 90vw; max-height: 90vh; z-index: 1001; cursor: zoom-out; position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); background: #fff; box-shadow: 0 0 32px #000a; }
+    .img-overlay { display: none; position: fixed; left: 0; top: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; }
+    .img-overlay.active { display: block; }
+    .cat-panel { margin: 1em 0; display: flex; align-items: center; justify-content: space-between; }
+    .cat-panel-left { display: flex; align-items: center; }
+    .cat-panel-right { text-align: right; }
+    .cat-panel label { margin-right: 0.5em; }
+    .btn-save, .btn-clear { padding: 8px 16px; font-size: 1em; border: none; border-radius: 4px; cursor: pointer; }
+    .btn-save { background-color: #28a745; color: white; }
+    .btn-save:hover { background-color: #218838; }
+    .btn-clear { background-color: #dc3545; color: white; margin-left: 8px; }
+    .btn-clear:hover { background-color: #c82333; }
+    .select-actions { margin-bottom: 0.7em; font-size: 0.97em; }
+    .select-actions button { margin-right: 6px; padding: 2px 8px; font-size: 0.97em; cursor: pointer; border: 1px solid #bbb; background: #f4f4f4; border-radius: 2px; transition: background 0.2s; }
+    .select-actions button:hover { background: #e1e1e1; }
+    .item input[type="checkbox"] { position: absolute; top: 10px; right: 10px; transform: scale(1.2); z-index: 10; cursor: pointer; }
+    body { padding-bottom: 60px; }
+  </style>
+</head>
+<body>
+<h1>Select eBay category for items</h1>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul>{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
+  {% endif %}
+{% endwith %}
+<form method="POST" id="categoriseForm">
+  <input type="hidden" name="ebay_category_id" id="selectedCategoryId" required>
+  <div class="cat-panel">
+    <div class="cat-panel-left" id="catContainer"></div>
+  </div>
+  <div class="actions-row">
+    <fieldset class="selection-box">
+      <legend style="text-align:center;">Item</legend>
+      <div class="select-actions">
+        <button type="button" id="selectAll">Select all</button>
+        <button type="button" id="deselectAll">Deselect all</button>
+        <button type="button" id="toggleAll">Toggle selection</button>
+      </div>
+    </fieldset>
+    <fieldset class="category-box">
+      <legend style="text-align:center;">eBay category</legend>
+      <div class="button-actions">
+        <button type="submit" class="btn-save" id="saveBtn">Save Selection</button>
+        <button type="button" class="btn-clear" id="clearBtn">Clear</button>
+      </div>
+    </fieldset>
+  </div>
+  <div class="grid" id="itemGrid">
+    {% for item in items %}
+      <div class="item">
+        <input type="checkbox" name="sku" value="{{ item.sku }}" class="sku-checkbox">
+        <div class="sku-label">{{ item.sku }}</div>
+        <img class="zoom-img" src="{{ item.thumb_url }}" data-thumb-src="{{ item.thumb_url }}" data-full-src="{{ item.full_url }}" alt="SKU {{ item.sku }}" loading="lazy">
+      </div>
+    {% else %}
+      <p>No uncategorised items!</p>
+    {% endfor %}
+  </div>
+</form>
+<div class="img-overlay" id="imgOverlay"></div>
+<div style="height: 50px;"></div>
+<script>
+  // Image zoom handlers
+  const imgs = document.querySelectorAll('.zoom-img');
+  const overlay = document.getElementById('imgOverlay');
+  let zoomedImg = null;
+  imgs.forEach(img => img.addEventListener('click', event => {
+    event.stopPropagation();
+    if (!img.classList.contains('zoomed')) {
+      const full = new Image(); full.src = img.dataset.fullSrc;
+      full.onload = () => img.src = img.dataset.fullSrc;
+      imgs.forEach(i => { i.classList.remove('zoomed'); i.src = i.dataset.thumbSrc; });
+      img.classList.add('zoomed'); overlay.classList.add('active'); zoomedImg = img;
+    } else {
+      img.src = img.dataset.thumbSrc; img.classList.remove('zoomed'); overlay.classList.remove('active'); zoomedImg = null;
+    }
+  }));
+  overlay.addEventListener('click', () => {
+    if (zoomedImg) {
+      zoomedImg.src = zoomedImg.dataset.thumbSrc;
+      zoomedImg.classList.remove('zoomed');
+      overlay.classList.remove('active');
+      zoomedImg = null;
+    }
+  });
+  function autoSortGrid() {
+    const grid = document.getElementById('itemGrid');
+    const itemsArr = Array.from(grid.querySelectorAll('.item'));
+    const oldOrder = itemsArr.slice();
+    itemsArr.sort((a, b) => {
+      const aChecked = a.querySelector('input.sku-checkbox').checked;
+      const bChecked = b.querySelector('input.sku-checkbox').checked;
+      if (aChecked !== bChecked) return aChecked ? -1 : 1;
+      return a.querySelector('.sku-label').innerText.trim()
+        .localeCompare(b.querySelector('.sku-label').innerText.trim());
+    });
+    itemsArr.forEach((item, idx) => {
+      if (oldOrder.indexOf(item) !== idx) {
+        item.classList.add('moving');
+        setTimeout(() => item.classList.remove('moving'), 400);
+      }
+      grid.appendChild(item);
+    });
+  }
+  document.getElementById('selectAll').onclick = () => {
+    document.querySelectorAll('input.sku-checkbox').forEach(cb => { cb.checked = true; cb.closest('.item').classList.add('selected'); });
+    autoSortGrid();
+  };
+  document.getElementById('deselectAll').onclick = () => {
+    document.querySelectorAll('input.sku-checkbox').forEach(cb => { cb.checked = false; cb.closest('.item').classList.remove('selected'); });
+    autoSortGrid();
+  };
+  document.getElementById('toggleAll').onclick = () => {
+    document.querySelectorAll('input.sku-checkbox').forEach(cb => { cb.checked = !cb.checked; cb.closest('.item').classList.toggle('selected', cb.checked); });
+    autoSortGrid();
+  };
+  document.querySelectorAll('.item').forEach(box => {
+    box.addEventListener('click', e => {
+      if (e.target.classList.contains('zoom-img') || e.target.type === 'checkbox') return;
+      const cb = box.querySelector('input.sku-checkbox');
+      cb.checked = !cb.checked;
+      box.classList.toggle('selected', cb.checked);
+      autoSortGrid();
+    });
+    const cb = box.querySelector('input.sku-checkbox');
+    cb.addEventListener('change', () => { box.classList.toggle('selected', cb.checked); autoSortGrid(); });
+  });
+  // Category dropdowns + clear + default select
+  const defaultClothingId = 11450;
+  const rootId = parseInt('{{ ebay_root }}', 10);
+  const catContainer = document.getElementById('catContainer');
+  const selectedInput = document.getElementById('selectedCategoryId');
+  async function fetchChildren(parentId) {
+    const res = await fetch(`/api/categories/${parentId}`);
+    return res.ok ? await res.json() : [];
+  }
+  function removeLower(level) {
+    document.querySelectorAll('.cat-select').forEach(el => { if (parseInt(el.dataset.level) > level) el.remove(); });
+  }
+  async function onSelectChange(e) {
+    const sel = e.target;
+    const level = parseInt(sel.dataset.level);
+    removeLower(level);
+    const catId = sel.value;
+    selectedInput.value = catId;
+    if (!catId) return;
+    const children = await fetchChildren(catId);
+    if (children.length) {
+      const next = document.createElement('select');
+      next.className = 'cat-select';
+      next.dataset.level = level + 1;
+      next.innerHTML = '<option value="">-- select --</option>' + children.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+      catContainer.appendChild(next);
+      next.addEventListener('change', onSelectChange);
+    }
+  }
+  (async () => {
+    catContainer.innerHTML = '';
+    const rootSel = document.createElement('select');
+    rootSel.className = 'cat-select';
+    rootSel.dataset.level = 0;
+    const topId = (!rootId || rootId === 0) ? 0 : defaultClothingId;
+    const rootChildren = await fetchChildren(topId);
+    if (!rootChildren.length) {
+      rootSel.innerHTML = '<option value="">(No categories found)</option>';
+    } else {
+      rootSel.innerHTML = '<option value="">-- select --</option>' +
+        rootChildren.map(c => `<option value="${c.id}"${c.id==defaultClothingId?' selected':''}>${c.name}</option>`).join('');
+    }
+    catContainer.appendChild(rootSel);
+    rootSel.addEventListener('change', onSelectChange);
+    if (rootSel.value) {
+      selectedInput.value = rootSel.value;
+      onSelectChange({ target: rootSel });
+    } else {
+      selectedInput.value = '';
+    }
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      selectedInput.value = defaultClothingId;
+      rootSel.value = defaultClothingId;
+      removeLower(0);
+      onSelectChange({ target: rootSel });
+    });
+    document.getElementById('saveBtn').addEventListener('click', e => {
+      if (!Array.from(document.querySelectorAll('.sku-checkbox')).some(cb => cb.checked)) {
+        e.preventDefault();
+        alert('Select at least one item');
+      }
+      if (!selectedInput.value) {
+        e.preventDefault();
+        alert('Select a category');
+      }
+    });
+  })();
+</script>
+</body>
+{% endblock %}

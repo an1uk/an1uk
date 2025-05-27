@@ -1,0 +1,70 @@
+{%- extends 'base.html' -%}
+{%- set gtm_head = false -%}
+{%- set gtm_body = false -%}
+{%- block content -%}
+<meta charset="UTF-8">
+<title>Edit Item: {{ ebay_item.item.sku }}</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery/css/lightgallery-bundle.min.css" />
+<style>
+  #lightgallery { display: flex; gap: 0.25rem; overflow-x: auto; padding-bottom: 0.5rem; }
+  #lightgallery img { max-height: 150px; cursor: pointer; border: 1px solid #ddd; border-radius: 4px; image-orientation: from-image; }
+  body, html { margin: 0; padding: 0; }
+</style>
+
+<div class="container-fluid px-0">
+  <h2 class="mx-3">Edit Item: {{ ebay_item.item.sku }}</h2>
+
+  {% if images %}
+  <div id="lightgallery" class="mx-3">
+    {% for img in images %}
+    <a href="{{ img.full_url }}" data-lg-size="1406-1390">
+      <img src="{{ img.thumb_url }}" alt="SKU Image {{ loop.index }}">
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <form method="post" class="mx-3">
+    {{ form.hidden_tag() }}
+
+    <!-- Unified form rendering: static and dynamic fields in form -->
+    {% for field in form %}
+      {% if field.type != 'HiddenField' and field.name != 'submit' %}
+        <div class="mb-3">
+          {{ field.label(class='form-label') }}
+          {{ field(class='form-control') }}
+          {% if field.choices %}
+          <small class="form-text text-muted">Options: {{ field.choices|length }} available</small>
+          {% endif %}
+          {% for error in field.errors %}
+            <div class="text-danger">{{ error }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endfor %}
+
+    <button type="submit" class="btn btn-primary">Update Item</button>
+  </form>
+</div>
+<hr>
+<h4>Debug Info</h4>
+{% for field in form %}
+  <div>
+    <b>{{ field.name }}</b> | {{ field.type }}<br>
+    Choices: {{ field.choices }}<br>
+    Rendered:<br>
+    {{ field(class="form-control")|safe }}
+    <hr>
+  </div>
+{% endfor %}
+
+<script src="https://cdn.jsdelivr.net/npm/lightgallery/lightgallery.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lightgallery/plugins/zoom/lg-zoom.min.js"></script>
+<script>
+  const gallery = lightGallery(document.getElementById('lightgallery'), {
+    speed:0, loop:true, zoom:true, download:false, actualSize:true,
+    plugins:[lgZoom], zoomFromOrigin:false, gesture:true, mousewheel:false, scale:1.5
+  });
+  gallery.on('lgAfterSlide', ()=>{ const z=document.querySelector('.lg-zoom-in'); if(z) z.click(); });
+</script>
+{%- endblock -%}

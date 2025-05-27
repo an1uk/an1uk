@@ -1,0 +1,40 @@
+# .gitignore for Python Flask project
+venv/
+env/
+migrations/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# dotenv and config files
+.env
+.env.*
+
+# macOS & VSCode stuff
+.DS_Store
+.vscode/
+
+# Coverage/test/cache
+.coverage
+htmlcov/
+.tox/
+.pytest_cache/
+
+# Flask and database
+instance/
+*.sqlite3
+*.db
+*.json
+
+# Logs
+*.log
+
+# Pip
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Compiled Cython files
+*.c
+*.so

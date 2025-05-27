@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Items in category: {{ category.name }}</h2>
+
+  <ul>
+    {% for item, ebay_item in items %}
+      <li>
+        <a href="{{ url_for('items.edit_item_page', item_id=item.id) }}">
+          {{ item.sku }} – {{ ebay_item.title }} – £{{ ebay_item.price }}
+        </a>
+      </li>
+    {% else %}
+      <li>No items found in this category.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}
