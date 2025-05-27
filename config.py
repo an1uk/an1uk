@@ -1,10 +1,11 @@
+# config.py
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY', 'dev')
+    SECRET_KEY = os.environ.get('FLASK_SECRET_KEY', 'supersecret')
     SQLALCHEMY_DATABASE_URI = (
         f"postgresql+psycopg2://{os.environ['POSTGRES_USER']}:{os.environ['POSTGRES_PASSWORD']}@"
         f"{os.environ['POSTGRES_HOST']}/{os.environ['POSTGRES_DB']}"
@@ -21,7 +22,6 @@ class Config:
     PROD_CLIENT_ID = os.environ.get("PROD_CLIENT_ID")
     PROD_CLIENT_SECRET = os.environ.get("PROD_CLIENT_SECRET")
 
-    # Toggle sandbox/production based on EBAY_ENV
     USE_SANDBOX = EBAY_ENV == "sandbox"
     CLIENT_ID = SANDBOX_CLIENT_ID if USE_SANDBOX else PROD_CLIENT_ID
     CLIENT_SECRET = SANDBOX_CLIENT_SECRET if USE_SANDBOX else PROD_CLIENT_SECRET
@@ -40,4 +40,3 @@ class Config:
 
     # Misc
     CATEGORY_CACHE_FILE = os.environ.get('CATEGORY_CACHE_FILE', 'categories.json')
-

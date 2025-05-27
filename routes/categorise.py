@@ -6,6 +6,7 @@ from models import db, Item, EbayCategory, EbayItem, SeenSKU
 
 categorise = Blueprint('categorise', __name__)
 
+
 @categorise.route('/api/categories/<int:parent_id>')
 @login_required
 def get_subcategories(parent_id):

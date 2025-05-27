@@ -2,7 +2,8 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required
 from sqlalchemy import func
 from models import db, Item, EbayCategory, EbayItem
-from utils import get_oauth_token, get_cached_aspects
+from ebay_auth import get_oauth_token
+from ebay_aspects import get_cached_aspects
 from model_form_builder import generate_flask_model_and_form
 from routes.utils import s3  # Only import the client, not BUCKET_NAME
 

@@ -1,11 +1,14 @@
+# 3_update_ebay_categories.py
+# Contains code for managing eBay categories, fetching and caching category data.
+
 import os
 import json
 import time
 import requests
 from flask import current_app
-from models import db, EbayCategory, CachedAspect
-from category_utils_helpers import flatten_category_tree
+from models import db, EbayCategory
 from requests.exceptions import HTTPError
+from ebay_auth import get_oauth_token
 
 enable_debug = True
 
@@ -13,24 +16,34 @@ def debug(*args):
     if enable_debug:
         print("[category_utils DEBUG]:", *args)
 
-def get_oauth_token(client_id=None, client_secret=None, use_sandbox=None):
-    cfg = current_app.config
-    use_sandbox = cfg['USE_SANDBOX'] if use_sandbox is None else use_sandbox
-    client_id = client_id or cfg['CLIENT_ID']
-    client_secret = client_secret or cfg['CLIENT_SECRET']
-    env = "sandbox" if use_sandbox else "production"
-    base_url = "https://api.sandbox.ebay.com" if use_sandbox else "https://api.ebay.com"
-    oauth_url = f"{base_url}/identity/v1/oauth2/token"
-    resp = requests.post(
-        oauth_url,
-        headers={'Content-Type': 'application/x-www-form-urlencoded'},
-        data={'grant_type': 'client_credentials', 'scope': 'https://api.ebay.com/oauth/api_scope'},
-        auth=(client_id, client_secret)
-    )
-    resp.raise_for_status()
-    token = resp.json().get('access_token')
-    debug("Token:", token[:10] + '...')
-    return token
+# You can import this from category_utils_helpers if available
+def flatten_category_tree(node, parent_id=None, path=None):
+    if path is None:
+        path = []
+
+    cat_info = node.get('category', {})
+    cat_id_str = cat_info.get('categoryId')
+    cat_name = cat_info.get('categoryName')
+
+    # If no valid categoryId or name, skip yielding this node
+    if not cat_id_str or not cat_name:
+        # still recurse into children under same parent/path
+        for child in node.get('childCategoryTreeNodes', []):
+            yield from flatten_category_tree(child, parent_id, path)
+        return
+
+    cat_id = int(cat_id_str)
+
+    # Build full path
+    current_path = path + [cat_name]
+    full_path = ' > '.join(current_path)
+
+    # Yield current node
+    yield (cat_id, cat_name, parent_id, full_path)
+
+    # Recurse into children
+    for child in node.get('childCategoryTreeNodes', []):
+        yield from flatten_category_tree(child, cat_id, current_path)
 
 def get_tree_id():
     cfg = current_app.config
@@ -117,21 +130,10 @@ def cache_to_db(app=None):
         debug("Merged count:", count)
         return count
 
-def fetch_aspects(category_id, headers):
-    cfg = current_app.config
-    url = f"{cfg['BASE_URL']}/commerce/taxonomy/v1/category_tree/{cfg['CATEGORY_TREE_ID']}/get_item_aspects_for_category?category_id={category_id}"
-    resp = requests.get(url, headers=headers)
-    if resp.status_code != 200:
-        debug(f"Failed to fetch aspects for {category_id}: {resp.status_code} {resp.text}")
-        return None
-    return resp.json().get("aspects", [])
-
-def get_cached_aspects(category_id, headers):
-    cached = CachedAspect.query.get(category_id)
-    if cached:
-        return cached.data
-    aspects = fetch_aspects(category_id, headers)
-    if aspects:
-        db.session.add(CachedAspect(category_id=category_id, data=aspects))
-        db.session.commit()
-    return aspects
+if __name__ == "__main__":
+    from app import create_app  # Or 'from yourapp import app' if no factory
+    app = create_app()
+    with app.app_context():
+        print("Updating eBay categories from eBay API...")
+        count = cache_to_db(app)
+        print(f"Successfully updated {count} categories in the database.")
