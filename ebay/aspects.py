@@ -1,3 +1,4 @@
+# ebay\aspects.py
 # Contains code for managing eBay categories, fetching and caching category data, and aspects.
 
 import requests

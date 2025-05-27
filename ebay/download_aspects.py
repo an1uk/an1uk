@@ -1,7 +1,8 @@
-import requests
+# ebay\download_aspects.py
+
 import json
 from config import BASE_URL, CATEGORY_TREE_ID
-from ebay_auth import get_oauth_token 
+from ebay2.ebay.auth import get_oauth_token 
 
 CATEGORY_ID = '185076'  # Example: Men's Shirts
 

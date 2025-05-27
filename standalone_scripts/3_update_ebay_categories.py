@@ -8,7 +8,7 @@ import requests
 from flask import current_app
 from models import db, EbayCategory
 from requests.exceptions import HTTPError
-from ebay_auth import get_oauth_token
+from ebay.auth import get_oauth_token
 
 enable_debug = True
 

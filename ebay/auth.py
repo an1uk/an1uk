@@ -1,4 +1,4 @@
-# ebay_auth.py
+# ebay\auth.py
 
 import requests
 from flask import current_app
