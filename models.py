@@ -1,5 +1,4 @@
 # models.py
-
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.ext.mutable import MutableDict
@@ -27,7 +26,7 @@ class User(db.Model, UserMixin):
 class Item(db.Model, TimestampMixin):
     __tablename__ = 'item'
     id = db.Column(db.Integer, primary_key=True)
-    sku = db.Column(db.String(12), unique=True, nullable=True)
+    sku = db.Column(db.String(12), unique=True, nullable=True) # String allows leading zeros
     brand = db.Column(db.String(24))
     item_type = db.Column(db.String(16))
     size = db.Column(db.String(8))
@@ -75,4 +74,4 @@ class CachedAspect(db.Model):
 
 class SeenSKU(db.Model):
     __tablename__ = 'seen_skus'
-    sku = db.Column(db.String(12), primary_key=True)
+    sku = db.Column(db.String(12), primary_key=True) # String allows leading zeros

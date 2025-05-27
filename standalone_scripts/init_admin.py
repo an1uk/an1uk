@@ -1,3 +1,7 @@
+# standalone_scripts\init_admin.py
+# Create an admin user for the application
+# Would be nice to have this run automatically on first run
+
 import os
 from app import create_app
 from models import db, User

@@ -1,3 +1,4 @@
+# routes\categorise.py
 import os
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, jsonify
 from flask_login import login_required
@@ -5,7 +6,6 @@ from sqlalchemy import text
 from models import db, Item, EbayCategory, EbayItem, SeenSKU
 
 categorise = Blueprint('categorise', __name__)
-
 
 @categorise.route('/api/categories/<int:parent_id>')
 @login_required
@@ -40,6 +40,12 @@ def categorise_items():
     sku_to_id = {item.sku: item.id for item in Item.query.filter(Item.sku.in_(all_seen)).all()}
     uncategorised = [sku for sku, iid in sku_to_id.items() if iid not in tracked_ids]
     cf = current_app.config.get('CF_IMAGE_BASE_URL')
+    # debug print statements
+    #print("All seen SKUs:", all_seen)
+    #print("sku_to_id:", sku_to_id)
+    #print("tracked_ids:", tracked_ids)
+    #print("uncategorised SKUs:", uncategorised)
+    #print("Items to show:", items)
     items = []
     for sku in sorted(uncategorised):
         key = f"items/{sku[:2]}/{sku[2:4]}/{sku[4:6]}/1.jpg"

@@ -1,7 +1,10 @@
-# 3_update_ebay_categories.py
+# standalone_scripts\update_ebay_categories.py
 # Contains code for managing eBay categories, fetching and caching category data.
+# Need a way to run aoutomatically in future
 
 import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import json
 import time
 import requests

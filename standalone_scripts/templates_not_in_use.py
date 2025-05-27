@@ -1,3 +1,4 @@
+# standalone_scripts/templates_not_in_use.py
 # An easy way to check which HTML templates are not used in the codebase.
 
 import os
