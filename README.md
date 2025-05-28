@@ -84,3 +84,9 @@ Additional automation and marketplace support are planned for future releases.
 
 Contributions, feature requests, and suggestions are welcome!  
 Please open an issue or submit a pull request.
+
+---
+
+## License
+
+This project is licensed under GNU Affero General Public License v3.0. See License file for full details.
