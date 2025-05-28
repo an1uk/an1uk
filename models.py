@@ -72,6 +72,7 @@ class CachedAspect(db.Model):
     def __repr__(self):
         return f"<CachedAspect {self.category_id}>"
 
+# SeenSKU no longer used - can be deleted in future
 class SeenSKU(db.Model):
     __tablename__ = 'seen_skus'
     sku = db.Column(db.String(12), primary_key=True) # String allows leading zeros
