@@ -26,6 +26,6 @@ def get_cached_aspects(category_id, headers):
         return cached.aspect_data
     aspects = fetch_aspects(category_id, headers)
     if aspects:
-        db.session.add(CachedAspect(category_id=category_id, data=aspects))
+        db.session.add(CachedAspect(category_id=category_id, aspect_data=aspects))
         db.session.commit()
     return aspects

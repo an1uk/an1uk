@@ -33,7 +33,7 @@ class Config:
     S3_PREFIX = os.environ.get('S3_PREFIX')
     AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
-    AWS_DEFAULT_REGION = os.environ.get('AWS_DEFAULT_REGION', 'eu-west-2')
+    AWS_DEFAULT_REGION = os.environ.get('AWS_DEFAULT_REGION')
 
     # CloudFront
     CF_IMAGE_BASE_URL = os.environ.get('CF_IMAGE_BASE_URL')
