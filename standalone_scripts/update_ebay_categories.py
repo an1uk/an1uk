@@ -19,7 +19,7 @@ def debug(*args):
     if enable_debug:
         print("[category_utils DEBUG]:", *args)
 
-# You can import this from category_utils_helpers if available
+# path should probably be a list of category numbers, rather than a string of category names
 def flatten_category_tree(node, parent_id=None, path=None):
     if path is None:
         path = []

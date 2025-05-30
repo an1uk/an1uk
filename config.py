@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Config:
-    SECRET_KEY = os.environ.get('FLASK_SECRET_KEY', 'supersecret')
+    SECRET_KEY = os.environ.get('FLASK_SECRET_KEY') # default removed for security
     SQLALCHEMY_DATABASE_URI = (
         f"postgresql+psycopg2://{os.environ['POSTGRES_USER']}:{os.environ['POSTGRES_PASSWORD']}@"
         f"{os.environ['POSTGRES_HOST']}/{os.environ['POSTGRES_DB']}"
