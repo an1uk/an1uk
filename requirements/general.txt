@@ -1,0 +1,13 @@
+The below services have costs associated.
+
+eBay API credentials
+https://developer.ebay.com/develop
+
+Amazon S3 storage
+https://aws.amazon.com/
+
+Cloudfront distribution
+https://aws.amazon.com/cloudfront/
+
+Cloudfront dynamic image transformation (may run without, but extra data transfer costs and slow loading
+https://aws.amazon.com/solutions/implementations/dynamic-image-transformation-for-amazon-cloudfront/
