@@ -3,8 +3,12 @@
 # Intended for development/testing use only.
 
 import sys
-from app import create_app
-from models import db
+import os
+# Add the project root (parent directory of this script) to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from an1uk import create_app
+from an1uk.models import db
 
 # Import main from your admin script
 from standalone_scripts.init_admin import main as create_admin

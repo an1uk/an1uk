@@ -7,7 +7,7 @@
 from flask import current_app
 import requests
 from datetime import datetime, timedelta
-from models import db, CachedAspect
+from ebay2.an1uk.models import db, CachedAspect
 
 enable_debug = True
 

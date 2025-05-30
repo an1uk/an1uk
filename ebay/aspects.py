@@ -3,7 +3,7 @@
 
 import requests
 from flask import current_app
-from models import db, CachedAspect
+from an1uk.models import db, CachedAspect
 
 enable_debug = True
 

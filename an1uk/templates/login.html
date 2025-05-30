@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+    <h1>Login</h1>
+    <form method="post" class="mb-3" action="">
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+            <label for="username">Username:</label>
+            {{ form.username(class="form-control", id="username") }}
+        </fieldset>
+        <fieldset class="form-group">
+            <label for="password">Password:</label>
+            {{ form.password(class="form-control", id="password") }}
+        </fieldset>
+        <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+    <p>Not registered? <a href="{{ url_for('auth.register') }}">Register here</a>.</p>
+{% endblock %}

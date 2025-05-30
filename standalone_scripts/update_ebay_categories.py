@@ -9,7 +9,7 @@ import json
 import time
 import requests
 from flask import current_app
-from models import db, EbayCategory
+from an1uk.models import db, EbayCategory
 from requests.exceptions import HTTPError
 from ebay.auth import get_oauth_token
 
@@ -134,7 +134,7 @@ def cache_to_db(app=None):
         return count
 
 if __name__ == "__main__":
-    from app import create_app  # Or 'from yourapp import app' if no factory
+    from an1uk import create_app  # Or 'from yourapp import app' if no factory
     app = create_app()
     with app.app_context():
         print("Updating eBay categories from eBay API...")

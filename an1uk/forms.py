@@ -1,6 +1,6 @@
 # forms.py 
 from flask_wtf import FlaskForm
-from wtforms import StringField, DecimalField, TextAreaField, SubmitField, BooleanField
+from wtforms import StringField, DecimalField, TextAreaField, SubmitField, BooleanField, PasswordField
 from wtforms.validators import DataRequired, Optional, Length, NumberRange, Email, EqualTo
 
 class ItemForm(FlaskForm):
@@ -16,10 +16,10 @@ class ItemForm(FlaskForm):
     submit = SubmitField('Add Item')
 
 # User Registration Form - not yet used elsewhere in the codebase
-class RegisterForm(FlaskForm):
+class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(max=24)])
-    password = StringField('Password', validators=[DataRequired(), Length(min = 6, max=64)])
-    confirm_password = StringField('Confirm Password', validators=[DataRequired(), Length(min=6, max=64), EqualTo('password')])
+    password = PasswordField('Password', validators=[DataRequired(), Length(min = 6, max=64)])
+    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), Length(min=6, max=64), EqualTo('password')])
     email = StringField('Email', validators=[DataRequired(), Email(), Length(max=128)])
     submit = SubmitField('Register')
 
@@ -27,6 +27,6 @@ class RegisterForm(FlaskForm):
 class LoginForm(FlaskForm):
     # Possibly use email for login in future
     username = StringField('Username', validators=[DataRequired()])
-    password = StringField('Password', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
     remember = BooleanField('Remember Me', default=False)
     submit = SubmitField('Login')

@@ -2,10 +2,10 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app
 from flask_login import login_required
 from sqlalchemy import func
-from models import db, Item, EbayCategory, EbayItem
+from an1uk.models import db, Item, EbayCategory, EbayItem
 from ebay.auth import get_oauth_token
 from ebay.aspects import get_cached_aspects
-from model_form_builder import generate_flask_model_and_form
+from an1uk.model_form_builder import generate_flask_model_and_form
 from routes.utils import s3  # Only import the client, not BUCKET_NAME
 
 items = Blueprint('items', __name__)
