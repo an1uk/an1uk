@@ -2,7 +2,7 @@
 import os
 from flask import Blueprint, flash, redirect, url_for
 from flask_login import login_required
-from models import db, Item
+from an1uk.models import db, Item
 from .utils import list_s3_keys, extract_sku_from_key
 
 uploads = Blueprint('uploads', __name__)

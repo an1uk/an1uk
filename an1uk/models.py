@@ -14,14 +14,15 @@ class TimestampMixin(object):
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
+    username = db.Column(db.String(24), unique=True, nullable=False)
+    image_file = db.Column(db.String(20), default='default.jpg')  # Default profile image
     password = db.Column(db.String(255), nullable=False)  # Hashed password
     email = db.Column(db.String(120), unique=True, nullable=False)
-    is_approved = db.Column(db.Boolean, default=False)
+    is_approved = db.Column(db.Boolean, default=False) # prevents login until admin approval
     is_admin = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
-        return f"<User {self.id} {self.username}>"
+        return f"<User {{self.username}}', '{self.email}', '{self.is_approved}', '{self.is_admin}', '{self.image_file}'>"
 
 class Item(db.Model, TimestampMixin):
     __tablename__ = 'item'
@@ -35,7 +36,7 @@ class Item(db.Model, TimestampMixin):
     def __repr__(self):
         return f"<Item {self.id} {self.sku}>"
 
-class EbayItem(db.Model):
+class EbayItem(db.Model, TimestampMixin):
     __tablename__ = 'ebay_item'
     id = db.Column(db.Integer, primary_key=True)
     item_id = db.Column(db.Integer, db.ForeignKey('item.id'), nullable=False)
@@ -55,24 +56,35 @@ class EbayItem(db.Model):
     def __repr__(self):
         return f"<EbayItem {self.id} {self.title}>"
 
-class EbayCategory(db.Model):
+# List of eBay categories downloaded from eBay
+class EbayCategory(db.Model, TimestampMixin):
     __tablename__ = 'ebay_category'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, unique=True, index=True, nullable=False, primary_key=True)  # should probably be called category_id
     name = db.Column(db.String(128), nullable=False)
-    parent_id = db.Column(db.Integer, db.ForeignKey('ebay_category.id'), nullable=True)
+    parent_id = db.Column(db.Integer, db.ForeignKey('ebay_category.id'), nullable=True, index=True)
     path = db.Column(db.String(512), nullable=True)
+
+    # Relationship for easier tree navigation
+    children = db.relationship(
+        'EbayCategory',
+        backref=db.backref('parent', remote_side=[id]),
+        lazy='dynamic'
+    )
 
     def __repr__(self):
         return f"<EbayCategory {self.id} {self.name}>"
 
-class CachedAspect(db.Model):
+# Cache category-specific aspect data downloaded from eBay
+class CachedAspect(db.Model, TimestampMixin):
+    __tablename__ = 'cached_aspect'
     category_id = db.Column(db.Integer, primary_key=True)  
-    aspect_data = db.Column(MutableDict.as_mutable(JSON), default=dict)
+    # aspect_data = db.Column(MutableDict.as_mutable(JSON), default=dict)  # original
+    aspect_data = db.Column(db.JSON) # revised
 
     def __repr__(self):
         return f"<CachedAspect {self.category_id}>"
 
-# SeenSKU no longer used - can be deleted in future
-class SeenSKU(db.Model):
-    __tablename__ = 'seen_skus'
-    sku = db.Column(db.String(12), primary_key=True) # String allows leading zeros
+# SeenSKU no longer used
+# class SeenSKU(db.Model):
+#    __tablename__ = 'seen_skus'
+#    sku = db.Column(db.String(12), primary_key=True) # String allows leading zeros

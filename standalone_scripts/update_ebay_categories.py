@@ -9,7 +9,7 @@ import json
 import time
 import requests
 from flask import current_app
-from models import db, EbayCategory
+from an1uk.models import db, EbayCategory
 from requests.exceptions import HTTPError
 from ebay.auth import get_oauth_token
 
@@ -19,7 +19,7 @@ def debug(*args):
     if enable_debug:
         print("[category_utils DEBUG]:", *args)
 
-# You can import this from category_utils_helpers if available
+# path should probably be a list of category numbers, rather than a string of category names
 def flatten_category_tree(node, parent_id=None, path=None):
     if path is None:
         path = []
@@ -134,7 +134,7 @@ def cache_to_db(app=None):
         return count
 
 if __name__ == "__main__":
-    from app import create_app  # Or 'from yourapp import app' if no factory
+    from an1uk import create_app  # Or 'from yourapp import app' if no factory
     app = create_app()
     with app.app_context():
         print("Updating eBay categories from eBay API...")

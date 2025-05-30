@@ -3,8 +3,8 @@
 # Would be nice to have this run automatically on first run
 
 import os
-from app import create_app
-from models import db, User
+from run import create_app
+from an1uk.models import db, User
 from werkzeug.security import generate_password_hash
 
 def main():

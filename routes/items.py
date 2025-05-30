@@ -2,13 +2,23 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app
 from flask_login import login_required
 from sqlalchemy import func
-from models import db, Item, EbayCategory, EbayItem
+from an1uk.models import db, Item, EbayCategory, EbayItem
 from ebay.auth import get_oauth_token
 from ebay.aspects import get_cached_aspects
-from model_form_builder import generate_flask_model_and_form
+from an1uk.model_form_builder import generate_flask_model_and_form
 from routes.utils import s3  # Only import the client, not BUCKET_NAME
 
 items = Blueprint('items', __name__)
+
+# Debug route to test fetching aspects
+from ebay.aspects import fetch_aspects
+@items.route("/test_fetch_aspects/<category_id>")
+def test_fetch_aspects(category_id):
+    token = get_oauth_token()
+    headers = {"Authorization": f"Bearer {token}"}  # Replace with valid token
+    aspects = fetch_aspects(category_id, headers)
+    return {"aspects": aspects}
+# End of debug route
 
 @items.route('/enter', methods=['GET'])
 @login_required
@@ -108,31 +118,33 @@ def list_items_by_category(category_id):
     ).filter(EbayItem.ebay_category_id == category_id).all()
     return render_template('list_items_sheet.html', items=items_, category=category)
 
-@items.route('/api/items/by-category/<int:category_id>')
-@login_required
-def api_items_by_category(category_id):
-    results = db.session.query(Item, EbayItem).join(
-        EbayItem, Item.id == EbayItem.item_id
-    ).filter(EbayItem.ebay_category_id == category_id).all()
-    return jsonify([
-        {
-            'id': ebay_item.id,
-            'item_id': item.id,
-            'sku': item.sku,
-            'title': ebay_item.title,
-            'price': str(ebay_item.price),
-            'description': ebay_item.description or ""
-        } for item, ebay_item in results
-    ])
+# Believed to be unused, but keeping for reference
+#@items.route('/api/items/by-category/<int:category_id>')
+#@login_required
+#def api_items_by_category(category_id):
+#    results = db.session.query(Item, EbayItem).join(
+#        EbayItem, Item.id == EbayItem.item_id
+#    ).filter(EbayItem.ebay_category_id == category_id).all()
+#    return jsonify([
+#        {
+#            'id': ebay_item.id,
+#            'item_id': item.id,
+#            'sku': item.sku,
+#            'title': ebay_item.title,
+#            'price': str(ebay_item.price),
+#            'description': ebay_item.description or ""
+#        } for item, ebay_item in results
+#    ])
 
-@items.route('/api/items/bulk_update', methods=['POST'])
-@login_required
-def api_items_bulk_update():
-    for row in request.json.get('items', []):
-        item = Item.query.get(row['id'])
-        if item:
-            item.title = row.get('title', item.title)
-            item.price = row.get('price', item.price)
-            item.description = row.get('description', item.description)
-    db.session.commit()
-    return jsonify({'status': 'ok'})
+# Believed to be unused, but keeping for reference
+#@items.route('/api/items/bulk_update', methods=['POST'])
+#@login_required
+#def api_items_bulk_update():
+#    for row in request.json.get('items', []):
+#        item = Item.query.get(row['id'])
+#        if item:
+#            item.title = row.get('title', item.title)
+#            item.price = row.get('price', item.price)
+#            item.description = row.get('description', item.description)
+#    db.session.commit()
+#    return jsonify({'status': 'ok'})

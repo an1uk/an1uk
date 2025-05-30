@@ -72,6 +72,12 @@ Planned enhancements include:
 
 ---
 
+## Example screenshot
+
+![Categorisation screen](https://an1uk.s3.eu-west-2.amazonaws.com/static/Screenshot-2025-05-30-145730.png)
+
+---
+
 ## Project Status
 
 **Active development** – SKU/image management and categorisation are currently supported.  

@@ -24,11 +24,11 @@
   </div>
   {% endif %}
 
-  <form method="post" class="mx-3">
-    {{ form.hidden_tag() }}
+<!--  <form method="post" class="mx-3">
+    {{ form.hidden_tag() }} -->
 
     <!-- Unified form rendering: static and dynamic fields in form -->
-    {% for field in form %}
+<!--    {% for field in form %}
       {% if field.type != 'HiddenField' and field.name != 'submit' %}
         <div class="mb-3">
           {{ field.label(class='form-label') }}
@@ -44,7 +44,7 @@
     {% endfor %}
 
     <button type="submit" class="btn btn-primary">Update Item</button>
-  </form>
+  </form> -->
 </div>
 <hr>
 <h4>Debug Info</h4>
