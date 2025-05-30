@@ -2,8 +2,7 @@
 
 {% block title %}Select eBay category for items{% endblock %}
 
-{% block content %}
-<head>
+{% block styles %}
   <style>
     .actions-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.7em; }
     .select-actions { display: flex; gap: 6px; font-size: 0.97em; }
@@ -19,6 +18,7 @@
       position: relative;
       display: inline-block;
       vertical-align: top;
+      color: #222;
     }
     .selection-box legend, .category-box legend {
       font-size: 1.08em;
@@ -32,7 +32,7 @@
       margin: 0 auto 2px auto;
     }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-top: 2em; }
-    .item { border: 1px solid #ccc; padding: 10px; background: #f9f9f9; text-align: center; border-radius: 8px; box-shadow: 0 2px 4px #0001; cursor: pointer; position: relative; transition: box-shadow 0.16s, border-color 0.16s; }
+    .item { border: 1px solid #ccc; padding: 10px; background: #f9f9f9; text-align: center; border-radius: 8px; box-shadow: 0 2px 4px #0001; cursor: pointer; position: relative; transition: box-shadow 0.16s, border-color 0.16s; color: #222; }
     .item:hover { border-color: #2196f3; box-shadow: 0 0 8px #2196f377; }
     .item.selected { border: 2px solid #2196f3; box-shadow: 0 0 6px #2196f377; background: #e3f2fd; }
     .sku-label { font-weight: bold; margin-bottom: 0.5em; letter-spacing: 1px; }
@@ -50,13 +50,49 @@
     .btn-clear { background-color: #dc3545; color: white; margin-left: 8px; }
     .btn-clear:hover { background-color: #c82333; }
     .select-actions { margin-bottom: 0.7em; font-size: 0.97em; }
-    .select-actions button { margin-right: 6px; padding: 2px 8px; font-size: 0.97em; cursor: pointer; border: 1px solid #bbb; background: #f4f4f4; border-radius: 2px; transition: background 0.2s; }
+    .select-actions button { margin-right: 6px; padding: 2px 8px; font-size: 0.97em; cursor: pointer; border: 1px solid #bbb; background: #f4f4f4; border-radius: 2px; transition: background 0.2s; color: #222; }
     .select-actions button:hover { background: #e1e1e1; }
     .item input[type="checkbox"] { position: absolute; top: 10px; right: 10px; transform: scale(1.2); z-index: 10; cursor: pointer; }
-    body { padding-bottom: 60px; }
+
+    /* --- DARK MODE OVERRIDES --- */
+    .dark-mode .selection-box, .dark-mode .category-box {
+      background: #23282f;
+      border-color: #3a4555;
+      color: #e0e0e0;
+      box-shadow: 0 2px 8px #0003;
+    }
+    .dark-mode .selection-box legend, .dark-mode .category-box legend {
+      color: #89c9fa;
+    }
+    .dark-mode .item {
+      background: #1d2227;
+      border-color: #33404d;
+      color: #e0e0e0;
+    }
+    .dark-mode .item.selected {
+      background: #233347;
+      border-color: #64b5f6;
+      box-shadow: 0 0 8px #2196f344;
+    }
+    .dark-mode .sku-label { color: #aad7ff; }
+    .dark-mode .select-actions button {
+      background: #232b32;
+      color: #e0e0e0;
+      border-color: #3a4555;
+    }
+    .dark-mode .select-actions button:hover {
+      background: #1a232b;
+    }
+    .dark-mode .btn-save { background: #40c463; }
+    .dark-mode .btn-save:hover { background: #359a53; }
+    .dark-mode .btn-clear { background: #dc3545; }
+    .dark-mode .btn-clear:hover { background: #a7252e; }
+    .dark-mode .grid { background: transparent; }
+    .dark-mode .zoom-img.zoomed { background: #21252b; }
   </style>
-</head>
-<body>
+{% endblock %}
+
+{% block content %}
 <h1>Select eBay category for items</h1>
 {% with messages = get_flashed_messages() %}
   {% if messages %}
@@ -70,7 +106,7 @@
   </div>
   <div class="actions-row">
     <fieldset class="selection-box">
-      <legend style="text-align:center;">Item</legend>
+      <legend>Item</legend>
       <div class="select-actions">
         <button type="button" id="selectAll">Select all</button>
         <button type="button" id="deselectAll">Deselect all</button>
@@ -78,7 +114,7 @@
       </div>
     </fieldset>
     <fieldset class="category-box">
-      <legend style="text-align:center;">eBay category</legend>
+      <legend>eBay category</legend>
       <div class="button-actions">
         <button type="submit" class="btn-save" id="saveBtn">Save Selection</button>
         <button type="button" class="btn-clear" id="clearBtn">Clear</button>
@@ -98,7 +134,6 @@
   </div>
 </form>
 <div class="img-overlay" id="imgOverlay"></div>
-<div style="height: 50px;"></div>
 <script>
   // Image zoom handlers
   const imgs = document.querySelectorAll('.zoom-img');
@@ -233,5 +268,4 @@
     });
   })();
 </script>
-</body>
 {% endblock %}
